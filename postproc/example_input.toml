@@ -1,5 +1,11 @@
 # Example input file
 
-[Path]
-input_path = '../Time2'
+[Temporal]
+input_path = '../../TEMP/'
+output_path = '../Figures'
+
+[isoc]
+input_path_int_res = '../../POST/integrate_iso_c/int_A_res*.csv'
+input_path_int_tot = '../../POST/integrate_iso_c/int_A_tot*.csv'
+input_path_int_norm_grac_c = '../../POST/integrate_gradc/integral_grad_c_*.csv'
 output_path = '../Figures'
