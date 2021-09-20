@@ -8,33 +8,32 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import toml
 
 # matplotlib
 plt.style.use("~/cerfacs-black.mplstyle")
-# sns.color_palette()
-#plt.style.use('grayscale')
 
 # logging
 logging.basicConfig(
-    # filename='0_temporal.log',
     level=logging.INFO,
-    # level=logging.DEBUG,
     format='\n > %(asctime)s | %(name)s | %(levelname)s \n > %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S')
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+input_file = toml.load('input.toml')
+
 # REFERENCE VALUES
 PRESSURE_REF = 1.3e5  # Pa
 VENT_AREA = 0.197872  # m^2
-PATH_TEMPORAL = "./Time2"
+PATH_TEMPORAL = input_file["Path"]["input_path"]
 
 # Otions
 PLOT_PROBES = 1
 PLOT_MMM = 1
 SHOW = 0
-OUTPATH = "./Figures/"
+OUTPATH = input_file["Path"]["output_path"]
 
 
 def find_probe_files():
@@ -170,25 +169,25 @@ def postproc_mmm():
     for ext in ['pdf', 'png']:
         fig.savefig(os.path.join(OUTPATH,
                                  'Fig_overp_Vcomb.%s' % ext),
-                    bbox_inches='tight', 
+                    bbox_inches='tight',
                     pad_inches=0.01)
 
     # VENT
     # Get df_vent
     logger.info("Plot Vent")
-    vent_file=sorted(glob.glob(os.path.join(PATH_TEMPORAL, "avbp_flux.h5")))
-    df_vent=pd.read_hdf(vent_file[-1])
-    probe_vent_file=sorted(glob.glob(os.path.join(
+    vent_file = sorted(glob.glob(os.path.join(PATH_TEMPORAL, "avbp_flux.h5")))
+    df_vent = pd.read_hdf(vent_file[-1])
+    probe_vent_file = sorted(glob.glob(os.path.join(
         PATH_TEMPORAL, "avbp_local_probe_encaps_x2_y3_z4.h5")))
-    df_pb_vent=pd.read_hdf(probe_vent_file[-1])
+    df_pb_vent = pd.read_hdf(probe_vent_file[-1])
 
-    fig, ax1_vent=plt.subplots()  # ax1_vent is the Pa scale
-    ax2_vent=ax1_vent.twinx()     # ax2_vent is the mbar scale
+    fig, ax1_vent = plt.subplots()  # ax1_vent is the Pa scale
+    ax2_vent = ax1_vent.twinx()     # ax2_vent is the mbar scale
 
     def update_ax2(ax1_vent):
         def Pa2mbar(press):
             return 1e3 * 1e-5 * press
-        p1, p2=ax1_vent.get_ylim()
+        p1, p2 = ax1_vent.get_ylim()
         ax2_vent.set_ylim(Pa2mbar(p1), Pa2mbar(p2))
         ax2_vent.figure.canvas.draw()
 
@@ -216,12 +215,12 @@ def postproc_mmm():
     for ext in ['pdf', 'png']:
         fig.savefig(os.path.join(OUTPATH,
                                  'Fig_vent.%s' % ext),
-                    bbox_inches='tight', 
+                    bbox_inches='tight',
                     pad_inches=0.01)
 
     # HR
     logger.info("Plot HR")
-    fig_hr, ax_hr=plt.subplots()  # ax1_vent is the Pa scale
+    fig_hr, ax_hr = plt.subplots()  # ax1_vent is the Pa scale
     ax_hr.plot(1e3 * df_mmm.atime, df_mmm.HR_mean)
     ax_hr.set_xlabel("Time [ms]")
     ax_hr.set_xlim(left=0)
@@ -232,9 +231,9 @@ def postproc_mmm():
     plt.subplots_adjust(wspace=0, hspace=0)
     for ext in ['pdf', 'png']:
         fig_hr.savefig(os.path.join(OUTPATH,
-                                 'Fig_HR.%s' % ext),
-                    bbox_inches='tight', 
-                    pad_inches=0.01)
+                                    'Fig_HR.%s' % ext),
+                       bbox_inches='tight',
+                       pad_inches=0.01)
 
     if SHOW:
         plt.show()

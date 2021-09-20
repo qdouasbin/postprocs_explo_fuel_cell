@@ -1,0 +1,5 @@
+# Example input file
+
+[Path]
+input_path = '../Time2'
+output_path = '../Figures'
