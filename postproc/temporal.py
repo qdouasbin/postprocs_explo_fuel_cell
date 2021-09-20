@@ -161,6 +161,7 @@ def postproc_mmm():
     ax_dv.legend()
 
     ax_dv.set_xlabel('Time [ms]')
+    ax_dv.set_xlim(left=0)
     ax_dv.set_ylabel('Volumetric rate [m$^3$/s]')
     ax_pres.set_ylabel('Mean overpressure [mbar]')
 
@@ -204,6 +205,7 @@ def postproc_mmm():
     ax1_vent.legend()
 
     ax1_vent.set_xlabel("Time [ms]")
+    ax1_vent.set_xlim(left=0)
     ax1_vent.set_ylabel("Overpressure [Pa]")
     ax2_vent.set_ylabel("Overpressure [mbar]")
     ax2_vent.grid(False)
@@ -222,6 +224,7 @@ def postproc_mmm():
     fig_hr, ax_hr=plt.subplots()  # ax1_vent is the Pa scale
     ax_hr.plot(1e3 * df_mmm.atime, df_mmm.HR_mean)
     ax_hr.set_xlabel("Time [ms]")
+    ax_hr.set_xlim(left=0)
     ax_hr.set_ylabel("Heat Release [$J.s^{-1}$]")
     plt.tight_layout()
 
