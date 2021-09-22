@@ -27,13 +27,13 @@ input_file = toml.load('input.toml')
 # REFERENCE VALUES
 PRESSURE_REF = 1.3e5  # Pa
 VENT_AREA = 0.197872  # m^2
-PATH_TEMPORAL = input_file["Path"]["input_path"]
+PATH_TEMPORAL = input_file["Temporal"]["input_path"]
 
 # Otions
 PLOT_PROBES = 1
 PLOT_MMM = 1
 SHOW = 0
-OUTPATH = input_file["Path"]["output_path"]
+OUTPATH = input_file["Temporal"]["output_path"]
 
 
 def find_probe_files():
