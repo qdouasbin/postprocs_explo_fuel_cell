@@ -29,10 +29,10 @@ PRESSURE_REF = 1.3e5  # Pa
 VENT_AREA = 0.197872  # m^2
 PATH_TEMPORAL = input_file["Temporal"]["input_path"]
 
-# Otions
+# Options
 PLOT_PROBES = 1
 PLOT_MMM = 1
-SHOW = 0
+SHOW = 1
 OUTPATH = input_file["Temporal"]["output_path"]
 
 
@@ -171,6 +171,9 @@ def postproc_mmm():
                                  'Fig_overp_Vcomb.%s' % ext),
                     bbox_inches='tight',
                     pad_inches=0.01)
+
+    if SHOW:
+        plt.show()
 
     # VENT
     # Get df_vent
