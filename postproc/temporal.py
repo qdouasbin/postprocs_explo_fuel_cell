@@ -31,7 +31,7 @@ PATH_TEMPORAL = input_file["Temporal"]["input_path"]
 
 # Options
 PLOT_PROBES = 1
-PLOT_MMM = 1
+PLOT_MMM = 0
 SHOW = 1
 OUTPATH = input_file["Temporal"]["output_path"]
 
@@ -59,7 +59,7 @@ def plot_probes(probes, var='overp_mbar'):
             # print((_idx_x, _idx_y))
             for _z in range(nb_z):
                 df = probes['x%s_y%s_z%s' % (_x + 1, _y+1, _z+1)]
-                ax.plot(1e3 * df.atime, df[var], label='z%s' % _z)
+                ax.plot(1e3 * df.atime, df[var], label='z%s' % (_z + 1))
             ax.set_title("x%s, y%s" % (_idx_x, _idx_y),
                          fontsize=8, y=1.05, pad=-14)
             if (_x + 1, _y+1) == (nb_x, nb_y):
