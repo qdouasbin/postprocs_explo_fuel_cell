@@ -11,7 +11,8 @@ import seaborn as sns
 import toml
 
 # matplotlib
-plt.style.use("~/cerfacs-black.mplstyle")
+plt.style.use("~/cerfacs-black-ClearSans.mplstyle")
+plt.rcParams['figure.autolayout'] = False
 
 # logging
 logging.basicConfig(
@@ -42,12 +43,9 @@ def find_probe_files():
     return files
 
 
-def plot_probes(probes, var='overp_mbar'):
+def plot_probes(probes, var='overp_mbar', prefix='encaps', nb_x=3, nb_y=5, nb_z=4):
     logger.info("Plot %s" % var)
 
-    nb_x = 3
-    nb_y = 5
-    nb_z = 4
     fig, axes = plt.subplots(nb_x, nb_y, sharex=True,
                              sharey=True, figsize=(10, 6))
 
@@ -58,7 +56,7 @@ def plot_probes(probes, var='overp_mbar'):
             ax = axes[_x, _y]
             # print((_idx_x, _idx_y))
             for _z in range(nb_z):
-                df = probes['x%s_y%s_z%s' % (_x + 1, _y+1, _z+1)]
+                df = probes['%s_x%s_y%s_z%s' % (prefix, _x + 1, _y+1, _z+1)]
                 ax.plot(1e3 * df.atime, df[var], label='z%s' % (_z + 1))
             ax.set_title("x%s, y%s" % (_idx_x, _idx_y),
                          fontsize=8, y=1.05, pad=-14)
@@ -87,7 +85,7 @@ def plot_probes(probes, var='overp_mbar'):
     plt.subplots_adjust(wspace=0, hspace=0)
     for ext in ['pdf', 'png']:
         fig.savefig(os.path.join(OUTPATH,
-                                 'Fig_probes_%s.%s' % (var, ext)),
+                                 'Fig_probes_%s_%s.%s' % (prefix, var, ext)),
                     bbox_inches='tight',
                     pad_inches=0.01)
 
@@ -97,25 +95,19 @@ def plot_probes(probes, var='overp_mbar'):
 
 def postproc_probes(var='overp_mbar'):
     probe_files = find_probe_files()
-    # logger.info(probe_files)
+    logger.info(probe_files)
 
     probes = dict()
     for _idx, _file_name in enumerate(probe_files):
         lst_file = _file_name.replace('.h5', '').split('_')
-        _key = '%s_%s_%s' % (lst_file[-3], lst_file[-2], lst_file[-1])
-        # print(_file_name, _key)
+        print("lst_file > ", lst_file)
+        _key = '%s_%s_%s_%s' % (lst_file[-4], lst_file[-3], lst_file[-2], lst_file[-1])
+        print(_file_name, _key)
         df = pd.read_hdf(_file_name)
         df['atime_filt'] = df['atime'].rolling(window=101).mean()
         df['P_filt'] = df['P'].rolling(window=101).mean()
         df['dP_dt'] = np.gradient(df.P_filt, df.atime_filt)
         df['overp_mbar'] = 1e-2 * (df['P'] - PRESSURE_REF)
-        # plt.figure()
-        # plt.plot(df.atime, df.P)
-        # plt.plot(df.atime_filt, df.P_filt)
-
-        # plt.figure()
-        # plt.plot(df.atime_filt, df.dP_dt)
-        # plt.show()
         df['u_mag'] = np.sqrt(
             np.square(df.u) + np.square(df.v) + np.square(df.w))
         probes[_key] = df
@@ -123,8 +115,12 @@ def postproc_probes(var='overp_mbar'):
             logger.info(df.columns.values)
         del(lst_file, _key, df)
 
-    for var in ['dP_dt', 'u_mag', 'P', 'overp_mbar', 'T']:
-        plot_probes(probes, var)
+    # for var in ['dP_dt', 'u_mag', 'P', 'overp_mbar', 'T']:
+    for var in ['P']:
+        # Encaps
+        plot_probes(probes, var='overp_mbar', prefix='encaps', nb_x=3, nb_y=5, nb_z=4)
+        # distrib
+        plot_probes(probes, var='overp_mbar', prefix='distrib', nb_x=3, nb_y=5, nb_z=2)
 
 
 def postproc_mmm():
@@ -155,8 +151,10 @@ def postproc_mmm():
 
     ax_pres.plot(1e3 * df_mmm.atime, 1e-2 * (df_mmm.P_mean - PRESSURE_REF))
 
-    ax_dv.plot(1e3 * df_mmm.atime, dVfg_dt, label=r"$\dot{V}_{fg}$")
-    ax_dv.plot(1e3 * df_mmm.atime, dVcomb_dt, label=r"$\dot{V}_{comb}$")
+    min_len = min(len(df_mmm.atime), len(dVfg_dt))
+    print("min_men  %s" % min_len)
+    ax_dv.plot(1e3 * df_mmm.atime.values[:min_len], dVfg_dt[:min_len], label=r"$\dot{V}_{fg}$")
+    ax_dv.plot(1e3 * df_mmm.atime.values[:min_len], dVcomb_dt.values[:min_len], label=r"$\dot{V}_{comb}$")
     ax_dv.legend()
 
     ax_dv.set_xlabel('Time [ms]')
@@ -199,8 +197,8 @@ def postproc_mmm():
 
     ax1_vent.plot(1e3 * df_mmm.atime, df_mmm.P_mean -
                   PRESSURE_REF, '--', label='mean over the domain')
-    ax1_vent.plot(1e3 * df_pb_vent.atime, df_pb_vent.P - PRESSURE_REF,
-                  '-.s', markevery=0.1, label='probe in front of the vent')
+    #ax1_vent.plot(1e3 * df_pb_vent.atime, df_pb_vent.P - PRESSURE_REF,
+    #              '-.s', markevery=0.1, label='probe in front of the vent')
     ax1_vent.plot(1e3 * df_vent.atime, df_vent.PFmean_VENT /
                   VENT_AREA - PRESSURE_REF, label='mean over the vent')
 
