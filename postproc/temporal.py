@@ -32,8 +32,8 @@ PATH_TEMPORAL = input_file["Temporal"]["input_path"]
 
 # Options
 PLOT_PROBES = 1
-PLOT_MMM = 0
-SHOW = 1
+PLOT_MMM = 1
+SHOW = 0
 OUTPATH = input_file["Temporal"]["output_path"]
 
 
@@ -101,7 +101,8 @@ def postproc_probes(var='overp_mbar'):
     for _idx, _file_name in enumerate(probe_files):
         lst_file = _file_name.replace('.h5', '').split('_')
         print("lst_file > ", lst_file)
-        _key = '%s_%s_%s_%s' % (lst_file[-4], lst_file[-3], lst_file[-2], lst_file[-1])
+        _key = '%s_%s_%s_%s' % (
+            lst_file[-4], lst_file[-3], lst_file[-2], lst_file[-1])
         print(_file_name, _key)
         df = pd.read_hdf(_file_name)
         df['atime_filt'] = df['atime'].rolling(window=101).mean()
@@ -115,12 +116,14 @@ def postproc_probes(var='overp_mbar'):
             logger.info(df.columns.values)
         del(lst_file, _key, df)
 
-    # for var in ['dP_dt', 'u_mag', 'P', 'overp_mbar', 'T']:
-    for var in ['P']:
+    for var in ['dP_dt', 'u_mag', 'P', 'overp_mbar', 'T']:
+    # for var in ['P']:
         # Encaps
-        plot_probes(probes, var='overp_mbar', prefix='encaps', nb_x=3, nb_y=5, nb_z=4)
+        plot_probes(probes, var=var,
+                    prefix='encaps', nb_x=3, nb_y=5, nb_z=4)
         # distrib
-        plot_probes(probes, var='overp_mbar', prefix='distrib', nb_x=3, nb_y=5, nb_z=2)
+        plot_probes(probes, var=var,
+                    prefix='distrib', nb_x=3, nb_y=5, nb_z=2)
 
 
 def postproc_mmm():
@@ -153,8 +156,10 @@ def postproc_mmm():
 
     min_len = min(len(df_mmm.atime), len(dVfg_dt))
     print("min_men  %s" % min_len)
-    ax_dv.plot(1e3 * df_mmm.atime.values[:min_len], dVfg_dt[:min_len], label=r"$\dot{V}_{fg}$")
-    ax_dv.plot(1e3 * df_mmm.atime.values[:min_len], dVcomb_dt.values[:min_len], label=r"$\dot{V}_{comb}$")
+    ax_dv.plot(1e3 * df_mmm.atime.values[:min_len],
+               dVfg_dt[:min_len], label=r"$\dot{V}_{fg}$")
+    ax_dv.plot(1e3 * df_mmm.atime.values[:min_len],
+               dVcomb_dt.values[:min_len], label=r"$\dot{V}_{comb}$")
     ax_dv.legend()
 
     ax_dv.set_xlabel('Time [ms]')
@@ -197,7 +202,7 @@ def postproc_mmm():
 
     ax1_vent.plot(1e3 * df_mmm.atime, df_mmm.P_mean -
                   PRESSURE_REF, '--', label='mean over the domain')
-    #ax1_vent.plot(1e3 * df_pb_vent.atime, df_pb_vent.P - PRESSURE_REF,
+    # ax1_vent.plot(1e3 * df_pb_vent.atime, df_pb_vent.P - PRESSURE_REF,
     #              '-.s', markevery=0.1, label='probe in front of the vent')
     ax1_vent.plot(1e3 * df_vent.atime, df_vent.PFmean_VENT /
                   VENT_AREA - PRESSURE_REF, label='mean over the vent')
